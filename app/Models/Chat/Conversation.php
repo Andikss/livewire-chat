@@ -14,6 +14,7 @@ class Conversation extends Model
     protected $table      = 'conversation';
 
     protected $fillable   = [
+        'id',
         'receiver_id',
         'sender_id'
     ];

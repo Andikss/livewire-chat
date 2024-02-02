@@ -14,6 +14,7 @@ class Message extends Model
     protected $table      = 'messages';
 
     protected $fillable   = [
+        'id',
         'body',
         'sender_id',
         'receiver_id',
