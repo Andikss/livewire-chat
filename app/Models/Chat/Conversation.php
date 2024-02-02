@@ -10,6 +10,8 @@ class Conversation extends Model
 {
     use HasFactory;
 
+    protected $keyType    = 'string';
+    public $incrementing  = false;
     protected $primaryKey = 'id';
     protected $table      = 'conversation';
 
