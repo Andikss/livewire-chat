@@ -13,6 +13,16 @@ class ChatBox extends Component
     public $loadedMessages;
     public $body;
 
+    public function render()
+    {
+        return view('livewire.chat.chat-box');
+    }
+
+    public function mount()
+    {
+        $this->loadMessages();
+    }
+
     public function loadMessages()
     {
         $this->loadedMessages = Message::where('conversation_id', $this->selectedConversation->id)->get();
@@ -20,6 +30,8 @@ class ChatBox extends Component
 
     public function sendMessage()
     {
+        $this->validate([ 'body' => 'required|string' ]);
+        
         $message = Message::create([
             'id'              => Str::uuid(),
             'conversation_id' => $this->selectedConversation->id,
@@ -31,15 +43,5 @@ class ChatBox extends Component
         $this->reset('body');
 
         $this->loadedMessages->push($message);
-    }
-
-    public function mount()
-    {
-        $this->loadMessages();
-    }
-
-    public function render()
-    {
-        return view('livewire.chat.chat-box');
     }
 }
