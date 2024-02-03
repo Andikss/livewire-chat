@@ -40,8 +40,8 @@ class ChatBox extends Component
             'body'            => $this->body,
         ]);
 
-        $this->reset('body');
-
         $this->loadedMessages->push($message);
+
+        $this->body = '';
     }
 }

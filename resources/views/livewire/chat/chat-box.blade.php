@@ -47,7 +47,7 @@
                                     'text-gray-500' => !$message->sender_id === auth()->id(),
                                     'text-white' => $message->sender_id === auth()->id(),
                                 ])>
-                                    5:25 am
+                                    {{ $message->created_at->format('g:i a') }}
                                 </p>
 
                                 @if ($message->sender_id === auth()->id())
@@ -78,7 +78,7 @@
             @endif
         </main>
 
-        <footer class="fixed bottom-0 z-10 bg-white inset-x-0">
+        <footer class="bottom-0 z-10 bg-white inset-x-0">
             <div class="p-2 border-t">
                 <form x-data="{ body: @entangle('body') }" @submit.prevent="$wire.sendMessage" method="POST" autocapitalize="off">
                     @csrf
