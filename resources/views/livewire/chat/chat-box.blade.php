@@ -20,76 +20,87 @@
 
         <main
             class="flex flex-col gap-3 p-2.5 overflow-y-auto flex-grow overscroll-contain overflow-x-hidden w-full my-auto">
-            <div @class(['max-w-[85%] md:max-w-[78%] flex w-auto gap-2 relative mt-2'])>
-                <div @class(['shrink-0'])>
-                    <x-avatar></x-avatar>
-                </div>
+            @if ($loadedMessages)
+                @foreach ($loadedMessages as $message)
+                    <div @class([
+                        'max-w-[85%] md:max-w-[78%] flex w-auto gap-2 relative mt-2',
+                        'ml-auto flex-row-reverse' => $message->sender_id === auth()->id(),
+                    ])>
+                        <div @class(['shrink-0'])>
+                            <x-avatar></x-avatar>
+                        </div>
+                        <div @class([
+                            'flex flex-wrap text-[15px] rounded-xl p-2.5 flex flex-col text-black bg-[#f6f6f8fb]',
+                            'rounded-bl-none brder-gray-200' => !$message->sender_id === auth()->id(),
+                            'rounded-br-none bg-blue-500/80 text-white' =>
+                                $message->sender_id === auth()->id(),
+                        ])>
 
-                <div @class([
-                    'flex flex-wrap text-[15px] rounded-xl p-2.5 flex flex-col text-black bg-[#f6f6f8fb]',
-                    'rounded-bl-none brder-gray-200' => false,
-                    'rounded-br-none bg-blue-500/80 text-white' => true,
-                ])>
+                            <p
+                                class="whitespace-normal truncate text-sm md:text-base tracking-wide lg:tracking-normal text-white">
+                                {{ $message->body }}
+                            </p>
 
-                    <p
-                        class="whitespace-normal truncate text-sm md:text-base tracking-wide lg:tracking-normal text-white">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores dolorum voluptates ipsum.
-                        Facilis,
-                        eos veniam laborum reprehenderit libero molestias temporibus. Molestias veniam modi facere
-                        corporis
-                        nulla sunt natus est. Provident?
-                    </p>
+                            <div class="ml-auto flex gap-2">
+                                <p @class([
+                                    'text-xs',
+                                    'text-gray-500' => !$message->sender_id === auth()->id(),
+                                    'text-white' => $message->sender_id === auth()->id(),
+                                ])>
+                                    5:25 am
+                                </p>
 
-                    <div class="ml-auto flex gap-2">
-                        <p @class(['text-xs', 'text-gray-500' => false, 'text-white' => true])>
-                            5:25 am
-                        </p>
-
-                        <span @class(['text-gray-500'])>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-check2-all" viewBox="0 0 16 16">
-                                <path
-                                    d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0" />
-                                <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708" />
-                            </svg>
-                        </span>
-
-                        {{-- <span @class(['text-gray-500'])>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2" viewBox="0 0 16 16">
-                                <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0"/>
-                            </svg>
-                        </span> --}}
+                                @if ($message->sender_id === auth()->id())
+                                    @if ($message->isRead())
+                                        <span @class(['text-gray-200'])>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                fill="currentColor" class="bi bi-check2-all" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0" />
+                                                <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708" />
+                                            </svg>
+                                        </span>
+                                    @else
+                                        <span @class(['text-gray-200'])>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2" viewBox="0 0 16 16">
+                                                <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0"/>
+                                            </svg>
+                                        </span>
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                @endforeach
+            @endif
         </main>
 
-        <footer class="shrink-0 z-10 bg-white inset-x-0">
+        <footer class="fixed bottom-0 z-10 bg-white inset-x-0">
             <div class="p-2 border-t">
                 <form x-data="{ body: @entangle('body').defer }" @submit.prevent="$wire.sendMessage" method="POST" autocapitalize="off">
                     @csrf
-
-                    <input type="hidden" autocomplete="false" style="display: none">
+                    <input type="hidden" autocomplete="off" hidden>
 
                     <div class="grid grid-cols-12">
                         <input 
-                            x-model="body"
+                            x-model="body" 
                             autofocus 
                             type="text" 
-                            autocomplete="off" 
-                            placeholder="Write message here"
+                            autocomplete="off"
+                            placeholder="Write your message here" 
                             maxlength="1700"
-                            class="col-span-10 bg-gray-100 border-0 outline-0 focus:border-0 focus:ring-0 hover:ring-0 rounded-lg focus:outline-none"
+                            name="body"
+                            class="col-span-10 p-2 bg-gray-100 border-0 outline-0 focus:border-0 focus:ring-0 rounded-lg focus:outline-none"
                         >
 
-                        <button x-bind:disabled="!body.trim()" type="submit" class="col-span-2">Send</button>
+                        <button x-bind:disabled="!body.trim()" type="submit" class="col-span-2 px-4 py-2 bg-blue-500 text-white rounded-lg">Send</button>
                     </div>
                 </form>
 
                 @error('body')
-                    <p>
+                    <small class="text-red-600">
                         {{ $message }}
-                    </p>
+                    </small>
                 @enderror
             </div>
         </footer>
