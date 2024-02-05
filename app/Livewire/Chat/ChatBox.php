@@ -30,8 +30,11 @@ class ChatBox extends Component
 
     public function sendMessage()
     {
-        $this->validate([ 'body' => 'required|string' ]);
-        
+        $this->validate(
+            ['body'          => 'required|string'],
+            ['body.required' => 'Message cannot be empty!']
+        );
+
         $message = Message::create([
             'id'              => Str::uuid(),
             'conversation_id' => $this->selectedConversation->id,
@@ -40,8 +43,11 @@ class ChatBox extends Component
             'body'            => $this->body,
         ]);
 
-        $this->loadedMessages->push($message);
+        $this->dispatch('scroll-bottom');
+        // $this->dispatch('messageSent');
 
-        $this->body = '';
+        $this->reset('body');
+
+        $this->loadedMessages->push($message);
     }
 }

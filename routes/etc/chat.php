@@ -8,5 +8,5 @@ use App\Livewire\Users;
 Route::middleware('auth')->group(function () {
     Route::get('/chat', Index::class)->name('chat');
     Route::get('/chat/{query}', Chat::class)->name('chat.chat');
-    Route::get('/users', Users::class)->name('users');
+    Route::get('/users', Users::class)->name('user');
 });

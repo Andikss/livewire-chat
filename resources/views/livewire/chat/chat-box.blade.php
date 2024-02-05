@@ -1,8 +1,18 @@
-<div class="w-full overflow-hidden overflow-x-hidden overflow-y-hidden scrollbar-hide">
+<div 
+    x-data="{ height: 0, conversationElement: document.getElementById('conversation') }"
+    x-init="
+        height = conversationElement.scrollHeight;
+        $nextTick(() => { conversationElement.scrollTop = height; })
+    "
+    @scroll-bottom.window="
+        $nextTick(() => { conversationElement.scrollTop = height; })
+    "
+    class="w-full overflow-hidden overflow-x-hidden overflow-y-hidden scrollbar-hide"
+>
     <div class="border-b flex flex-col overflow-y-scroll grow h-full">
         <header class="w-full sticky top-0 inset-x-0 flex py-1 bg-white border-b">
             <div class="flex w-full items-center px-2 lg:px-4 gap-2 md:gap-5">
-                <a href="#" class="shrink-0 lg:hidden">
+                <a href="{{ route('chat') }}" class="shrink-0 lg:hidden">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                         class="bi bi-arrow-left h-6 w-6" viewBox="0 0 16 16">
                         <path fill-rule="evenodd"
@@ -18,8 +28,7 @@
             </div>
         </header>
 
-        <main
-            class="flex flex-col gap-3 p-2.5 overflow-y-auto flex-grow overscroll-contain overflow-x-hidden w-full my-auto">
+        <main id="conversation" class="flex flex-col gap-3 p-2.5 overflow-y-auto flex-grow overscroll-contain overflow-x-hidden w-full my-auto">
             @if ($loadedMessages)
                 @foreach ($loadedMessages as $message)
                     <div @class([
@@ -80,13 +89,18 @@
 
         <footer class="bottom-0 z-10 bg-white inset-x-0">
             <div class="p-2 border-t">
-                <form x-data="{ body: @entangle('body') }" @submit.prevent="$wire.sendMessage" method="POST" autocapitalize="off">
+                <form x-data="{ body: @entangle('body') }" @submit.prevent="$wire.sendMessage" method="POST" autocapitalize="off" x-on:messageSent="body = ''">
                     @csrf
                     <input type="hidden" autocomplete="off" hidden>
 
-                    <div class="grid grid-cols-12">
-                        <input x-model="body" autofocus type="text" autocomplete="off"
-                            placeholder="Write your message here" maxlength="1700"
+                    <div class="grid grid-cols-12" wire:ignore>
+                        <input 
+                            x-model="body" 
+                            autofocus 
+                            type="text" 
+                            autocomplete="off"
+                            placeholder="Write your message here" 
+                            maxlength="1700"
                             class="col-span-10 p-2 bg-gray-100 border-0 outline-0 focus:border-0 focus:ring-0 rounded-lg focus:outline-none">
 
                         <button x-bind-disabled="!body.trim()" type="submit"
