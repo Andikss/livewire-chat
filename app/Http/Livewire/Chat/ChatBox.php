@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Livewire\Component;
 use Illuminate\Support\Str;
 use App\Models\Chat\Message;
+use App\Notifications\MessageSent;
+use Illuminate\Support\Facades\Auth;
 
 class ChatBox extends Component
 {
@@ -74,5 +76,12 @@ class ChatBox extends Component
         $this->selectedConversation->save();
 
         $this->dispatchBrowserEvent('chat.chat-list', 'refresh');
+
+        $this->selectedConversation->getReceiver()->notify(new MessageSent(
+            Auth::user(),
+            $message,
+            $this->selectedConversation,
+            $this->selectedConversation->getReceiver()->id
+        ));
     }
 }
