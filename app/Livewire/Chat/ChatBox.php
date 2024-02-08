@@ -4,14 +4,26 @@ namespace App\Livewire\Chat;
 
 use Illuminate\Support\Str;
 use App\Models\Chat\Message;
+use Carbon\Carbon;
 use Livewire\Component;
 
 class ChatBox extends Component
 {
 
+    protected $listeners = ['refreshChatList' => 'refreshList'];
     public $selectedConversation;
     public $loadedMessages;
     public $body;
+
+    public $paginate_var = 10;
+
+    public function load(): void
+    {
+        $this->paginate_var += 10;
+
+        $this->loadMessages();
+    }
+
 
     public function render()
     {
@@ -25,7 +37,12 @@ class ChatBox extends Component
 
     public function loadMessages()
     {
-        $this->loadedMessages = Message::where('conversation_id', $this->selectedConversation->id)->get();
+        $count = Message::with(['sender'])->where('conversation_id', $this->selectedConversation->id)->count();
+
+        $this->loadedMessages = Message::with(['sender'])->where('conversation_id', $this->selectedConversation->id)
+            ->skip($count - $this->paginate_var)
+            ->take($this->paginate_var)
+            ->get();
     }
 
     public function sendMessage()
@@ -49,5 +66,15 @@ class ChatBox extends Component
         $this->reset('body');
 
         $this->loadedMessages->push($message);
+
+        $this->selectedConversation->updated_at = Carbon::now();
+        $this->selectedConversation->save();
+
+        $this->dispatch('chat.chat-list', 'refresh');
+    }
+
+    public function refreshList()
+    {
+        $this->refresh();
     }
 }
