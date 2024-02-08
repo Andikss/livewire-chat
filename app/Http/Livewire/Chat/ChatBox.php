@@ -4,10 +4,12 @@ namespace App\Http\Livewire\Chat;
 
 use Carbon\Carbon;
 use Livewire\Component;
+use Illuminate\View\View;
 use Illuminate\Support\Str;
 use App\Models\Chat\Message;
 use App\Notifications\MessageSent;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Collection;
 
 class ChatBox extends Component
 {
@@ -18,12 +20,34 @@ class ChatBox extends Component
 
     protected $listeners = ['loadMore' => 'loadMore'];
 
-    public function mount()
+    public function getListeners(): array
+    {
+        $auth_id = Auth::user()->id;
+
+        return [
+            'loadMore',
+            "echo-private:users.{$auth_id},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated" => 'broadcastedNotifications'        
+        ];
+    }
+
+    public function broadcastedNotifications($event)
+    {
+        if($event['type'] == MessageSent::class) {
+            if($event['conversation_id'] == $this->selectedConversation->id) {
+                $this->dispatchBrowserEvent('scroll-bottom');
+
+                $message = Message::find($event['message_id']);
+                $this->loadedMessages->push($message);
+            }
+        }
+    }
+
+    public function mount(): void
     {
         $this->loadMessages();
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.chat.chat-box');
     }
@@ -40,7 +64,7 @@ class ChatBox extends Component
         $this->dispatchBrowserEvent('update-chat-height');
     }
 
-    public function loadMessages()
+    public function loadMessages(): Collection
     {
         $count = Message::with(['sender'])->where('conversation_id', $this->selectedConversation->id)->count();
 
@@ -53,7 +77,7 @@ class ChatBox extends Component
         return $this->loadedMessages;
     }
 
-    public function sendMessage()
+    public function sendMessage(): void
     {
         $this->validate(
             ['body'          => 'required|string'],
@@ -75,7 +99,7 @@ class ChatBox extends Component
         $this->selectedConversation->updated_at = Carbon::now();
         $this->selectedConversation->save();
 
-        $this->dispatchBrowserEvent('chat.chat-list', 'refresh');
+        $this->emitTo('chat.chat-list', 'refresh');
 
         $this->selectedConversation->getReceiver()->notify(new MessageSent(
             Auth::user(),
