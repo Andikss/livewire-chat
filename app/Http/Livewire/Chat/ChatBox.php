@@ -99,7 +99,7 @@ class ChatBox extends Component
         $this->selectedConversation->updated_at = Carbon::now();
         $this->selectedConversation->save();
 
-        $this->emitTo('chat.chat-list', 'refresh');
+        // $this->emitTo('chat.chat-list', 'refresh');
 
         $this->selectedConversation->getReceiver()->notify(new MessageSent(
             Auth::user(),
