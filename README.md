@@ -1,4 +1,4 @@
-![Alt text](wired.png)
+![Alt text](./public/static/wired.png)
 
 # **Wired - Livewire Chat**
 
