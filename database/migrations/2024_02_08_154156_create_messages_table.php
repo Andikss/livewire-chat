@@ -16,13 +16,13 @@ return new class extends Migration
             $table->uuid('id')->primary()->default(Str::uuid())->unique();
 
             $table->uuid('conversation_id');
-            $table->foreign('conversation_id')->references('id')->on('conversation');
+            $table->foreign('conversation_id')->references('id')->on('conversation')->cascadeOnDelete();
 
-            $table->uuid('sender_id');
-            $table->foreign('sender_id')->references('id')->on('users');
+            $table->uuid('sender_id')->nullable();
+            $table->foreign('sender_id')->references('id')->on('users')->nullOnDelete();
 
-            $table->uuid('receiver_id');
-            $table->foreign('receiver_id')->references('id')->on('users');
+            $table->uuid('receiver_id')->nullable();
+            $table->foreign('receiver_id')->references('id')->on('users')->nullOnDelete();
 
             $table->timestamp('read_at')->nullable();
 

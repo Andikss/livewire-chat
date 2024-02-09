@@ -36,7 +36,7 @@ class Message extends Model
 
     public function conversation(): BelongsTo
     {
-        return $this->belongsTo(Conversation::class, 'id', 'conversation_id');
+        return $this->belongsTo(Conversation::class, 'id', 'conversation_id')->whereNotDeleted();
     }
 
     public function isRead(): bool
