@@ -7,6 +7,7 @@ use Livewire\Component;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
 use App\Models\Chat\Message;
+use App\Notifications\MessageRead;
 use App\Notifications\MessageSent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,18 +27,27 @@ class ChatBox extends Component
 
         return [
             'loadMore',
-            "echo-private:users.{$auth_id},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated" => 'broadcastedNotifications'        
+            "echo-private:users.{$auth_id},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated" => 'broadcastedNotifications'
         ];
     }
 
     public function broadcastedNotifications($event)
     {
-        if($event['type'] == MessageSent::class) {
-            if($event['conversation_id'] == $this->selectedConversation->id) {
+        if ($event['type'] == MessageSent::class) {
+            if ($event['conversation_id'] == $this->selectedConversation->id) {
                 $this->dispatchBrowserEvent('scroll-bottom');
 
                 $message = Message::find($event['message_id']);
                 $this->loadedMessages->push($message);
+
+                $message->read_at = Carbon::now();
+                $message->save();
+
+                $this->selectedConversation->getReceiver()->notify(new MessageRead(
+                    $this->selectedConversation->id
+                ));
+
+                
             }
         }
     }

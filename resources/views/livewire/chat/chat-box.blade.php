@@ -1,11 +1,23 @@
 <div 
-    x-data="{ height: 0, conversationElement: document.getElementById('conversation') }"
+    x-data="{ 
+        height: 0, 
+        conversationElement: null,
+        markAsRead: null
+    }"
     x-init="
+        conversationElement = document.getElementById('conversation');
         height = conversationElement.scrollHeight;
-        $nextTick(() => { conversationElement.scrollTop = height; })
+        $nextTick(() => { conversationElement.scrollTop = height; });
+
+        Echo.private('users.{{ Auth()->user()->id }}')
+            .notification((notification) => {
+                if (notification.type === 'App\\Notifications\\MessageRead' && notification.conversation_id === '{{ $this->selectedConversation->id }}') {
+                    markAsRead = true;
+                }
+            });
     "
     @scroll-bottom.window="
-        $nextTick(() => { conversationElement.scrollTop = height; })
+        $nextTick(() => { conversationElement.scrollTop = conversationElement.scrollHeight });
     "
     class="w-full overflow-hidden overflow-x-hidden overflow-y-hidden scrollbar-hide"
 >
@@ -46,8 +58,20 @@
         "
         id="conversation" class="flex flex-col gap-3 p-2.5 overflow-y-auto flex-grow overscroll-contain overflow-x-hidden w-full my-auto">
             @if ($loadedMessages)
-                @foreach ($loadedMessages as $message)
-                    <div @class([
+
+                @php
+                    $previousMessages = null;
+                @endphp
+
+                @foreach ($loadedMessages as $key => $message)
+
+                    @if ($key > 0)
+                        @php
+                            $previousMessage = $loadedMessages->get($key-1)
+                        @endphp
+                    @endif
+
+                    <div wire:key="{{time().$key}}" @class([
                         'max-w-[85%] md:max-w-[78%] flex w-auto gap-2 relative mt-2',
                         'ml-auto flex-row-reverse' => $message->sender_id === auth()->id(),
                     ])>
@@ -61,8 +85,7 @@
                                 $message->sender_id === auth()->id(),
                         ])>
 
-                            <p 
-                                class="whitespace-normal truncate text-sm md:text-base tracking-wide lg:tracking-norma"
+                            <p class="whitespace-normal truncate text-sm md:text-base tracking-wide lg:tracking-norma"
                                 @class([
                                     'text-gray-100' => !$message->sender_id === auth()->id(),
                                     'text-white' => $message->sender_id === auth()->id(),
@@ -81,25 +104,19 @@
                                 </p>
 
                                 @if ($message->sender_id === auth()->id())
-                                    @if ($message->isRead())
-                                        <span @class(['text-gray-200'])>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                fill="currentColor" class="bi bi-check2-all" viewBox="0 0 16 16">
-                                                <path
-                                                    d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0" />
-                                                <path
-                                                    d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708" />
+                                    <div x-data="{markAsRead:@json($message->isRead())}">
+                                        <span x-cloak x-show="markAsRead" @class(['text-gray-200'])>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-all" viewBox="0 0 16 16">
+                                                <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0" />
+                                                <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708" />
                                             </svg>
                                         </span>
-                                    @else
-                                        <span @class(['text-gray-200'])>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                fill="currentColor" class="bi bi-check2" viewBox="0 0 16 16">
-                                                <path
-                                                    d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0" />
+                                        <span x-show="!markAsRead" @class(['text-gray-200'])>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2" viewBox="0 0 16 16">
+                                                <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0" />
                                             </svg>
                                         </span>
-                                    @endif
+                                    </div>
                                 @endif
                             </div>
                         </div>
