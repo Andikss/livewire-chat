@@ -1,10 +1,26 @@
-<div x-data="{ type: 'all', query: @entangle('query') }" x-init="setTimeout(() => {
-    conversationElement = document.getElementById('conversation-' + query);
+<div 
+    x-data="{ type: 'all', query: @entangle('query'), conversationElement: null }" 
+    x-init="
+        setTimeout(() => {
+            conversationElement = document.getElementById('conversation-' + query);
 
-    if (conversationElement) {
-        conversationElement.scrollIntoView({ 'behaviour': 'smooth' })
-    }
-}), 200;" class="flex flex-col transition-all h-full overflow-hidden w-full">
+            if (conversationElement) {
+                conversationElement.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 200);
+
+        Echo.private('users.{{Auth()->User()->id}}')
+            .notification((notification)=>{
+                if(notification['type']== 'App\\Notifications\\MessageRead'||notification['type']== 'App\\Notifications\\MessageSent')
+                {
+        
+                    window.Livewire.emit('refresh');
+                }
+            });
+    " 
+    class="flex flex-col transition-all h-full overflow-hidden w-full"
+>
+
     <header class="px-3 z-10 bg-white sticky top-0 w-full py-2">
         <div class="border-b justify-between flex items-center pb-2">
             <div class="flex items-center gap-2">
