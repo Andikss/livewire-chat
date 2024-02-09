@@ -81,14 +81,14 @@
                         <div @class([
                             'flex flex-wrap text-[15px] rounded-xl p-2.5 flex flex-col text-black bg-[#f6f6f8fb]',
                             'rounded-bl-none brder-gray-200' => !$message->sender_id === auth()->id(),
-                            'rounded-br-none bg-blue-500/80 text-white' =>
+                            'rounded-br-none bg-[#D9FCD2] text-gray-900' =>
                                 $message->sender_id === auth()->id(),
                         ])>
 
                             <p class="whitespace-normal truncate text-sm md:text-base tracking-wide lg:tracking-norma"
                                 @class([
                                     'text-gray-100' => !$message->sender_id === auth()->id(),
-                                    'text-white' => $message->sender_id === auth()->id(),
+                                    'text-gray-900' => $message->sender_id === auth()->id(),
                                 ])
                             >
                                 {{ $message->body }}
@@ -98,7 +98,7 @@
                                 <p @class([
                                     'text-xs',
                                     'text-gray-100' => !$message->sender_id === auth()->id(),
-                                    'text-white' => $message->sender_id === auth()->id(),
+                                    'text-gray-900' => $message->sender_id === auth()->id(),
                                 ])>
                                     {{ $message->created_at->format('g:i a') }}
                                 </p>
@@ -142,7 +142,7 @@
                             class="col-span-10 p-2 bg-gray-100 border-0 outline-0 focus:border-0 focus:ring-0 rounded-lg focus:outline-none">
 
                         <button {{-- x-bind-disabled="!body.trim()" --}} type="submit"
-                            class="col-span-2 px-4 py-2 bg-blue-500 text-white rounded-lg">
+                            class="col-span-2 px-4 py-2 text-grey-900 rounded-lg">
                             Send
                         </button>
                     </div>

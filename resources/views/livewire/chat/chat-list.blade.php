@@ -1,18 +1,21 @@
-<div x-data="{ type: 'all', query: @entangle('query'), conversationElement: null }" x-init="setTimeout(() => {
-    conversationElement = document.getElementById('conversation-' + query);
+<div 
+    x-data="{ type: 'all', query: @entangle('query'), conversationElement: null }" 
+    x-init="setTimeout(() => {
+        conversationElement = document.getElementById('conversation-' + query);
 
-    if (conversationElement) {
-        conversationElement.scrollIntoView({ behavior: 'smooth' });
-    }
-}, 200);
-
-Echo.private('users.{{ Auth()->User()->id }}')
-    .notification((notification) => {
-        if (notification['type'] == 'App\\Notifications\\MessageRead' || notification['type'] == 'App\\Notifications\\MessageSent') {
-
-            window.Livewire.emit('refresh');
+        if (conversationElement) {
+            conversationElement.scrollIntoView({ behavior: 'smooth' });
         }
-    });" class="flex flex-col transition-all h-full overflow-hidden w-full">
+    }, 200);
+
+    Echo.private('users.{{ Auth()->User()->id }}')
+        .notification((notification) => {
+            if (notification['type'] == 'App\\Notifications\\MessageRead' || notification['type'] == 'App\\Notifications\\MessageSent') {
+
+                window.Livewire.emit('refresh');
+            }
+        });" 
+    class="flex flex-col transition-all h-full overflow-hidden w-full">
 
     <header class="px-3 z-10 bg-white sticky top-0 w-full py-2">
         <div class="border-b justify-between flex items-center pb-2">
@@ -30,11 +33,11 @@ Echo.private('users.{{ Auth()->User()->id }}')
 
         {{-- Filters --}}
         <div class="flex gap-3 items-center p-2 bg-white">
-            <button @click="type='all'" :class="{ 'bg-blue-100 text-black': type === 'all' }"
+            <button @click="type='all'" :class="{ 'bg-[#D9FCD2] text-black': type === 'all' }"
                 class="inline-flex justify-center items-center rounded-full text-xs font-medium px-3 lg:px-5 py-1 lg:py-2.5 border">
                 All
             </button>
-            <button @click="type='deleted'" :class="{ 'bg-blue-100 text-black': type === 'deleted' }"
+            <button @click="type='deleted'" :class="{ 'bg-[#D9FCD2] text-black': type === 'deleted' }"
                 class="inline-flex justify-center items-center rounded-full text-xs font-medium px-3 lg:px-5 py-1 lg:py-2.5 border">
                 Deleted
             </button>
@@ -101,7 +104,7 @@ Echo.private('users.{{ Auth()->User()->id }}')
                                     {{-- Unread --}}
                                     @if ($conversation->unreadMessagesCount() > 0)
                                         <span
-                                            class="font-bold p-px px-2 text-xs shrink-0 rounded-full bg-blue-500 text-white">
+                                            class="font-bold p-px px-2 text-xs shrink-0 rounded-full bg-green-500 text-white">
                                             {{ $conversation->unreadMessagesCount() }}
                                         </span>
                                     @endif

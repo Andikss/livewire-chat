@@ -1,12 +1,6 @@
 .PHONY: dev install migrate rollback refresh clear
 
-dev: install rollback refresh clear
-
-composer-install:
-	composer install
-
-npm-install:
-	npm install
+dev: rollback refresh clear
 
 migrate:
 	php artisan migrate
